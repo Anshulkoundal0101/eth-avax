@@ -1,0 +1,38 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.18;
+
+contract Bestnumber {
+    uint private PrimaryChoice;
+
+    // Function to set the PrimaryChoice
+    function setPrimaryChoice(uint _number) public {
+        // Using require to check the number is greater than zero
+        require(_number > 0, "PrimaryChoice must be greater than zero");
+        PrimaryChoice = _number;
+    }
+
+    // Function to get the PrimaryChoice
+    function getPrimaryChoice() public view returns (uint) {
+        return PrimaryChoice;
+    }
+
+    // Function using assert to check a condition
+    function testAssert() public view {
+        // Using assert to ensure the PrimaryChoice is always greater than zero
+        assert(PrimaryChoice > 0);
+    }
+
+    // Function using require to check a condition
+    function testRequire() public view {
+        // Using require to ensure the PrimaryChoice is greater than zero
+        require(PrimaryChoice > 0, "PrimaryChoice should be greater than zero");
+    }
+
+    // Function using revert to check a condition
+    function testRevert() public view {
+        // Using revert to check if the PrimaryChoice is zero
+        if (PrimaryChoice == 0) {
+            revert("PrimaryChoice should be greater than zero");
+        }
+    }
+}
