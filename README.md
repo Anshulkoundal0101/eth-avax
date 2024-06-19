@@ -23,14 +23,16 @@ pragma solidity ^0.8.18;
 contract Bestnumber {
     uint private PrimaryChoice;
 
-    // Function to set the PrimaryChoice
+       // Function to set the PrimaryChoicer, but only if it's a positive integer!
+
     function setPrimaryChoice(uint _number) public {
         // Using require to check the number is greater than zero
-        require(_number > 0, "PrimaryChoice must be greater than zero");
+        require(_number > 0, "Come on, my primarychoice can't be zero or negative!");
         PrimaryChoice = _number;
     }
 
     // Function to get the PrimaryChoice
+
     function getPrimaryChoice() public view returns (uint) {
         return PrimaryChoice;
     }
@@ -42,13 +44,17 @@ contract Bestnumber {
     }
 
     // Function using require to check a condition
+  // Make sure I didn't accidentally set my favorite number to zero
     function testRequire() public view {
         // Using require to ensure the PrimaryChoice is greater than zero
         require(PrimaryChoice > 0, "PrimaryChoice should be greater than zero");
+//"Oh no, my favorite number can't be zero!"
     }
 
     // Function using revert to check a condition
+  // One last check to make sure everything is okay
     function testRevert() public view {
+      // If this condition is true, we have a problem!
         // Using revert to check if the PrimaryChoice is zero
         if (PrimaryChoice == 0) {
             revert("PrimaryChoice should be greater than zero");
