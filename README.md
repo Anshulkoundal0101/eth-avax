@@ -1,13 +1,12 @@
-# Best number Smart Contract
-The Best number smart contract empowers users to designate and retrieve their PrimaryChoice. It comprises functions for number validation employing various error-management approaches (require(), assert(), and revert()).
+# himachal mla Smart Contract
+The HimachalPradeshMLAs smart contract is a decentralized application on the Ethereum blockchain designed to manage and maintain a registry of Members of the Legislative Assembly (MLAs) for the state of Himachal Pradesh
+
 ## Description
-The BestNumber smart contract is a Solidity-based Ethereum smart contract designed to give users a simple and secure way to set and retrieve their primary choice number. By leveraging the Ethereum blockchain, users can interact with the contract using their Ethereum wallets or through other smart contracts.
+The HimachalPradeshMLAs smart contract is designed to manage a registry of Members of the Legislative Assembly (MLAs) for the state of Himachal Pradesh. It allows the owner (admin) to add, update, deactivate, and retrieve MLA details. The contract also includes functions to demonstrate error-handling mechanisms in Solidity, such as assert(), require(), and revert() statements.
 
-Users can use the setPrimaryChoice() function to specify their best number. The contract ensures the number provided is greater than zero, utilizing the require() statement for input validation.
+The HimachalPradeshMLAs contract is designed to be used by the contract owner to manage the list of MLAs. The owner can add new MLAs, update their constituencies, and deactivate them as needed. Users can retrieve the details of any MLA using their ID. 
 
-The getPrimaryChoice() function allows users to retrieve the number they previously set as their primary choice. This function is read-only, ensuring that users can view their best number without changing the contract's state.
-
-To demonstrate various error-handling mechanisms in Solidity, the contract includes additional functions like testAssert(), testRequire(), and testRevert(). These functions showcase the use of assert(), require(), and revert() statements.
+The HimachalPradeshMLAs smart contract is a robust and secure solution for managing a registry of MLAs. By leveraging the Ethereum blockchain, it ensures transparency, security, and easy access to information, fostering greater trust and efficiency in the administrative processes.
 ## Getting Started
 
 ### Installing
@@ -20,44 +19,72 @@ Once you are on the Remix website, create a new file by clicking on the "+" icon
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-contract Bestnumber {
-    uint private PrimaryChoice;
-
-       // Function to set the PrimaryChoicer, but only if it's a positive integer!
-
-    function setPrimaryChoice(uint _number) public {
-        // Using require to check the number is greater than zero
-        require(_number > 0, "Come on, my primarychoice can't be zero or negative!");
-        PrimaryChoice = _number;
+contract HimachalPradeshMLAs {
+    struct MLA {
+        string name;
+        string constituency;
+        bool isActive;
     }
 
-    // Function to get the PrimaryChoice
+    mapping(uint => MLA) private mlas; // Mapping of MLA IDs to MLA structs
+    uint private mlaCount; // Counter for MLA IDs
+    address private owner; // Owner of the contract (admin)
 
-    function getPrimaryChoice() public view returns (uint) {
-        return PrimaryChoice;
+    constructor() {
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only the owner can perform this action");
+        _;
+    }
+
+    // Function to add a new MLA
+    function addMLA(string memory _name, string memory _constituency) public onlyOwner {
+        require(bytes(_name).length > 0, "MLA name must not be empty");
+        require(bytes(_constituency).length > 0, "MLA constituency must not be empty");
+        mlaCount++;
+        mlas[mlaCount] = MLA(_name, _constituency, true);
+    }
+
+    // Function to get MLA details
+    function getMLA(uint _id) public view returns (string memory, string memory, bool) {
+        require(_id > 0 && _id <= mlaCount, "MLA ID does not exist");
+        MLA memory mla = mlas[_id];
+        return (mla.name, mla.constituency, mla.isActive);
+    }
+
+    // Function to update MLA constituency
+    function updateConstituency(uint _id, string memory _newConstituency) public onlyOwner {
+        require(_id > 0 && _id <= mlaCount, "MLA ID does not exist");
+        require(bytes(_newConstituency).length > 0, "New constituency must not be empty");
+        mlas[_id].constituency = _newConstituency;
+    }
+
+    // Function to deactivate an MLA
+    function deactivateMLA(uint _id) public onlyOwner {
+        require(_id > 0 && _id <= mlaCount, "MLA ID does not exist");
+        mlas[_id].isActive = false;
     }
 
     // Function using assert to check a condition
-    function testAssert() public view {
-        // Using assert to ensure the PrimaryChoice is always greater than zero
-        assert(PrimaryChoice > 0);
+    function testAssert(uint _id) public view {
+        MLA memory mla = mlas[_id];
+        // Using assert to ensure the MLA's name is always not empty
+        assert(bytes(mla.name).length > 0);
     }
 
     // Function using require to check a condition
-  // Make sure I didn't accidentally set my favorite number to zero
-    function testRequire() public view {
-        // Using require to ensure the PrimaryChoice is greater than zero
-        require(PrimaryChoice > 0, "PrimaryChoice should be greater than zero");
-//"Oh no, my favorite number can't be zero!"
+    function testRequire(uint _id) public view {
+        // Using require to ensure the MLA ID exists
+        require(_id > 0 && _id <= mlaCount, "MLA ID does not exist");
     }
 
     // Function using revert to check a condition
-  // One last check to make sure everything is okay
-    function testRevert() public view {
-      // If this condition is true, we have a problem!
-        // Using revert to check if the PrimaryChoice is zero
-        if (PrimaryChoice == 0) {
-            revert("PrimaryChoice should be greater than zero");
+    function testRevert(uint _id) public view {
+        // Using revert to check if the MLA ID does not exist
+        if (_id == 0 || _id > mlaCount) {
+            revert("MLA ID does not exist");
         }
     }
 }
