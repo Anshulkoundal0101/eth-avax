@@ -1,44 +1,72 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-contract Bestnumber {
-    uint private PrimaryChoice;
-
-       // Function to set the PrimaryChoicer, but only if it's a positive integer!
-
-    function setPrimaryChoice(uint _number) public {
-        // Using require to check the number is greater than zero
-        require(_number > 0, "Come on, my primarychoice can't be zero or negative!");
-        PrimaryChoice = _number;
+contract HimachalPradeshMLAs {
+    struct MLA {
+        string name;
+        string constituency;
+        bool isActive;
     }
 
-    // Function to get the PrimaryChoice
+    mapping(uint => MLA) private mlas; // Mapping of MLA IDs to MLA structs
+    uint private mlaCount; // Counter for MLA IDs
+    address private owner; // Owner of the contract (admin)
 
-    function getPrimaryChoice() public view returns (uint) {
-        return PrimaryChoice;
+    constructor() {
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only the owner can perform this action");
+        _;
+    }
+
+    // Function to add a new MLA
+    function addMLA(string memory _name, string memory _constituency) public onlyOwner {
+        require(bytes(_name).length > 0, "MLA name must not be empty");
+        require(bytes(_constituency).length > 0, "MLA constituency must not be empty");
+        mlaCount++;
+        mlas[mlaCount] = MLA(_name, _constituency, true);
+    }
+
+    // Function to get MLA details
+    function getMLA(uint _id) public view returns (string memory, string memory, bool) {
+        require(_id > 0 && _id <= mlaCount, "MLA ID does not exist");
+        MLA memory mla = mlas[_id];
+        return (mla.name, mla.constituency, mla.isActive);
+    }
+
+    // Function to update MLA constituency
+    function updateConstituency(uint _id, string memory _newConstituency) public onlyOwner {
+        require(_id > 0 && _id <= mlaCount, "MLA ID does not exist");
+        require(bytes(_newConstituency).length > 0, "New constituency must not be empty");
+        mlas[_id].constituency = _newConstituency;
+    }
+
+    // Function to deactivate an MLA
+    function deactivateMLA(uint _id) public onlyOwner {
+        require(_id > 0 && _id <= mlaCount, "MLA ID does not exist");
+        mlas[_id].isActive = false;
     }
 
     // Function using assert to check a condition
-    function testAssert() public view {
-        // Using assert to ensure the PrimaryChoice is always greater than zero
-        assert(PrimaryChoice > 0);
+    function testAssert(uint _id) public view {
+        MLA memory mla = mlas[_id];
+        // Using assert to ensure the MLA's name is always not empty
+        assert(bytes(mla.name).length > 0);
     }
 
     // Function using require to check a condition
-  // Make sure I didn't accidentally set my favorite number to zero
-    function testRequire() public view {
-        // Using require to ensure the PrimaryChoice is greater than zero
-        require(PrimaryChoice > 0, "PrimaryChoice should be greater than zero");
-//"Oh no, my favorite number can't be zero!"
+    function testRequire(uint _id) public view {
+        // Using require to ensure the MLA ID exists
+        require(_id > 0 && _id <= mlaCount, "MLA ID does not exist");
     }
 
     // Function using revert to check a condition
-  // One last check to make sure everything is okay
-    function testRevert() public view {
-      // If this condition is true, we have a problem!
-        // Using revert to check if the PrimaryChoice is zero
-        if (PrimaryChoice == 0) {
-            revert("PrimaryChoice should be greater than zero");
+    function testRevert(uint _id) public view {
+        // Using revert to check if the MLA ID does not exist
+        if (_id == 0 || _id > mlaCount) {
+            revert("MLA ID does not exist");
         }
     }
 }
